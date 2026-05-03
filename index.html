@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf7ef" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="训练记录" />
+    <title>训练记录</title>
+    <link rel="manifest" href="./manifest.webmanifest?v=38" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="./startup-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="./startup-750x1334.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+    <link rel="stylesheet" href="./styles.css?v=38" />
+  </head>
+  <body>
+    <main class="app">
+      <section id="homeScreen" class="screen home-screen">
+        <header class="home-hero">
+          <span class="home-copy">
+            <span class="home-title">今天练什么？</span>
+            <span class="home-subtitle">和噜噜一起完成今日训练</span>
+          </span>
+          <span class="hero-lulu" aria-hidden="true">
+            <img class="hero-lulu-image" src="./assets/home-hero-lulu-cutout.png" alt="" />
+          </span>
+        </header>
+
+        <div class="split-picker" aria-label="训练选择">
+          <button class="split-card lower-card" type="button" data-start-split="lower">
+            <img class="split-card-image" src="./assets/home-card-lower.png" alt="臀腿日" />
+          </button>
+          <button class="split-card upper-card" type="button" data-start-split="upper">
+            <img class="split-card-image" src="./assets/home-card-upper.png" alt="上肢日" />
+          </button>
+        </div>
+
+        <div class="home-actions">
+          <button id="historyButton" class="utility-button history-button" type="button">
+            <span class="action-icon action-icon-history" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M8 4h8M8 9h8M8 14h5" />
+                <rect x="5" y="3" width="14" height="18" rx="3" />
+              </svg>
+            </span>
+            <span class="action-label">历史记录</span>
+            <span class="action-arrow" aria-hidden="true">›</span>
+          </button>
+          <button id="exportButton" class="utility-button" type="button">
+            <span class="action-icon action-icon-export" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M12 4v11M8 8l4-4 4 4M6 16.5a4 4 0 0 0 1 7.5h10a4 4 0 0 0 1-7.5" />
+              </svg>
+            </span>
+            <span class="action-label">备份</span>
+            <span class="action-arrow" aria-hidden="true">›</span>
+          </button>
+          <label class="utility-button import-button">
+            <span class="action-icon action-icon-import" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M12 20V9M8 16l4 4 4-4M6 15.5a4 4 0 0 1 1-7.5h10a4 4 0 0 1 1 7.5" />
+              </svg>
+            </span>
+            <span class="action-label">恢复</span>
+            <span class="action-arrow" aria-hidden="true">›</span>
+            <input id="importInput" type="file" accept="application/json" />
+          </label>
+        </div>
+      </section>
+
+      <section id="workoutScreen" class="screen workout-screen" hidden>
+        <header class="workout-head">
+          <button id="backButton" class="round-button" type="button" aria-label="返回">‹</button>
+          <span class="workout-ornament workout-ornament-bell" aria-hidden="true"></span>
+          <span class="workout-ornament workout-ornament-sparkle workout-ornament-sparkle-one" aria-hidden="true"></span>
+          <span class="workout-ornament workout-ornament-sparkle workout-ornament-sparkle-two" aria-hidden="true"></span>
+          <span class="workout-mascot workout-mascot-lower" aria-hidden="true">
+            <img src="./assets/lulu-workout-lower-cutout.png" alt="" />
+          </span>
+          <span class="workout-mascot workout-mascot-upper" aria-hidden="true">
+            <img src="./assets/lulu-workout-upper-cutout.png" alt="" />
+          </span>
+          <div class="workout-head-copy">
+            <h1 id="workoutTitle">臀腿日</h1>
+            <p id="progressText" class="progress-text">0 / 7</p>
+            <div class="progress-line" aria-hidden="true">
+              <span id="progressFill"></span>
+            </div>
+          </div>
+        </header>
+
+        <div id="cardTrack" class="card-track" aria-live="polite"></div>
+        <div id="workoutCarouselMeta" class="workout-carousel-meta" aria-hidden="true">
+          <div id="progressDots" class="progress-dots"></div>
+        </div>
+        <button id="endWorkoutButton" class="end-button" type="button">结束本次训练</button>
+
+        <section id="finishPanel" class="finish-panel" hidden>
+          <h2>完成</h2>
+          <p id="finishText">已记录。</p>
+          <button id="finishHomeButton" class="primary-button" type="button">回首页</button>
+        </section>
+      </section>
+
+      <section id="historyScreen" class="screen history-screen" hidden>
+        <header class="workout-head">
+          <button id="historyBackButton" class="round-button" type="button" aria-label="返回">‹</button>
+          <div>
+            <h1>历史记录</h1>
+          </div>
+        </header>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </main>
+
+    <template id="exerciseCardTemplate">
+      <article class="exercise-card">
+        <header class="exercise-card-head">
+          <div class="exercise-title-block">
+            <h2 class="exercise-name"></h2>
+            <span class="exercise-target"></span>
+          </div>
+          <span class="exercise-index"></span>
+        </header>
+        <div class="input-grid">
+          <label class="sets-field">
+            <span class="field-title"><span class="sets-label">组数</span></span>
+            <div class="inline-wheel sets" data-field="sets"></div>
+          </label>
+          <label class="reps-field">
+            <span class="field-title"><span class="reps-label">次数</span></span>
+            <div class="inline-wheel reps" data-field="reps"></div>
+          </label>
+          <label class="weight-field">
+            <span class="field-title weight-title">
+              <span class="weight-label">重量</span>
+              <span class="weight-prefix"></span>
+            </span>
+            <div class="weight-picker">
+              <div class="inline-wheel weight" data-field="weight"></div>
+              <span class="weight-suffix"></span>
+            </div>
+          </label>
+        </div>
+        <button class="confirm-button" type="button">完成本动作</button>
+      </article>
+    </template>
+
+    <script src="./app.js?v=38"></script>
+  </body>
+</html>
