@@ -19,7 +19,15 @@ const rootFiles = [
   "startup-1125x2436.png",
   "startup-1170x2532.png",
   "startup-1179x2556.png",
-  "startup-1290x2796.png"
+  "startup-1290x2796.png",
+  "startup-750x1334-v41.png",
+  "startup-828x1792-v41.png",
+  "startup-1125x2436-v41.png",
+  "startup-1170x2532-v41.png",
+  "startup-1179x2556-v41.png",
+  "startup-1206x2622-v41.png",
+  "startup-1290x2796-v41.png",
+  "startup-1320x2868-v41.png"
 ];
 
 function copyFile(relativePath) {

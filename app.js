@@ -97,7 +97,7 @@ cardTrack.addEventListener("touchmove", stopWheelTouch, { passive: true, capture
 document.addEventListener("gesturestart", preventZoom);
 document.addEventListener("gesturechange", preventZoom);
 document.addEventListener("touchmove", preventMultiTouchZoom, { passive: false });
-dismissAppSplash();
+cleanupServiceWorker();
 
 function startWorkout(split) {
   const exercises = templates[split] || templates.lower;
@@ -730,20 +730,17 @@ function preventMultiTouchZoom(event) {
   if (event.touches && event.touches.length > 1) event.preventDefault();
 }
 
-function dismissAppSplash() {
-  const splash = document.querySelector("#appSplash");
-  if (!splash) return;
-  window.setTimeout(() => {
-    splash.classList.add("is-hidden");
-    window.setTimeout(() => splash.remove(), 420);
-  }, 260);
-}
-
 function cssEscape(value) {
   if (globalThis.CSS && CSS.escape) return CSS.escape(value);
   return String(value).replace(/["\\]/g, "\\$&");
 }
 
-if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+function cleanupServiceWorker() {
+  if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
+  navigator.serviceWorker.getRegistrations?.().then((registrations) => {
+    registrations.forEach((registration) => registration.unregister());
+  }).catch(() => {});
+  if ("caches" in window) {
+    caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch(() => {});
+  }
 }
