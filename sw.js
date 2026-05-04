@@ -1,11 +1,11 @@
-const cacheName = "gym-training-log-v40";
+const cacheName = "gym-training-log-v41";
 const files = [
   "./",
   "./index.html",
-  "./index.html?v=40",
-  "./styles.css?v=40",
-  "./app.js?v=40",
-  "./manifest.webmanifest?v=40",
+  "./index.html?v=41",
+  "./styles.css?v=41",
+  "./app.js?v=41",
+  "./manifest.webmanifest?v=41",
   "./assets/home-hero-lulu-cutout.png",
   "./assets/home-card-lower.png",
   "./assets/home-card-upper.png",
@@ -26,12 +26,14 @@ const files = [
   "./apple-touch-icon.png",
   "./icon-192.png",
   "./icon-512.png",
-  "./startup-750x1334.png?v=40",
-  "./startup-828x1792.png?v=40",
-  "./startup-1125x2436.png?v=40",
-  "./startup-1170x2532.png?v=40",
-  "./startup-1179x2556.png?v=40",
-  "./startup-1290x2796.png?v=40",
+  "./startup-750x1334-v41.png",
+  "./startup-828x1792-v41.png",
+  "./startup-1125x2436-v41.png",
+  "./startup-1170x2532-v41.png",
+  "./startup-1179x2556-v41.png",
+  "./startup-1206x2622-v41.png",
+  "./startup-1290x2796-v41.png",
+  "./startup-1320x2868-v41.png",
 ];
 
 self.addEventListener("install", (event) => {
