@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="训练记录" />
     <title>训练记录</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=38" />
+    <link rel="manifest" href="./manifest.webmanifest?v=39" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1179x2556.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1290x2796.png" />
@@ -17,7 +17,7 @@
     <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="./startup-1125x2436.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="./startup-750x1334.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=38" />
+    <link rel="stylesheet" href="./styles.css?v=39" />
   </head>
   <body>
     <main class="app">
@@ -80,12 +80,12 @@
           <span class="workout-ornament workout-ornament-bell" aria-hidden="true"></span>
           <span class="workout-ornament workout-ornament-sparkle workout-ornament-sparkle-one" aria-hidden="true"></span>
           <span class="workout-ornament workout-ornament-sparkle workout-ornament-sparkle-two" aria-hidden="true"></span>
-          <span class="workout-mascot workout-mascot-lower" aria-hidden="true">
+          <button class="workout-mascot workout-mascot-lower" type="button" aria-label="打开噜噜训练助手">
             <img src="./assets/lulu-workout-lower-cutout.png" alt="" />
-          </span>
-          <span class="workout-mascot workout-mascot-upper" aria-hidden="true">
+          </button>
+          <button class="workout-mascot workout-mascot-upper" type="button" aria-label="打开噜噜训练助手">
             <img src="./assets/lulu-workout-upper-cutout.png" alt="" />
-          </span>
+          </button>
           <div class="workout-head-copy">
             <h1 id="workoutTitle">臀腿日</h1>
             <p id="progressText" class="progress-text">0 / 7</p>
@@ -106,6 +106,20 @@
           <p id="finishText">已记录。</p>
           <button id="finishHomeButton" class="primary-button" type="button">回首页</button>
         </section>
+
+        <div id="assistantOverlay" class="assistant-overlay" hidden>
+          <button class="assistant-scrim" type="button" data-assistant-close aria-label="关闭噜噜训练助手"></button>
+          <section class="assistant-panel" role="dialog" aria-modal="true" aria-labelledby="assistantTitle">
+            <header class="assistant-head">
+              <div>
+                <p class="assistant-eyebrow">噜噜助手</p>
+                <h2 id="assistantTitle">今日已完成</h2>
+              </div>
+              <button id="assistantCloseButton" class="assistant-close" type="button" aria-label="关闭">×</button>
+            </header>
+            <div id="assistantList" class="assistant-list"></div>
+          </section>
+        </div>
       </section>
 
       <section id="historyScreen" class="screen history-screen" hidden>
@@ -152,6 +166,6 @@
       </article>
     </template>
 
-    <script src="./app.js?v=38"></script>
+    <script src="./app.js?v=39"></script>
   </body>
 </html>

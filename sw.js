@@ -1,11 +1,11 @@
-const cacheName = "gym-training-log-v38";
+const cacheName = "gym-training-log-v39";
 const files = [
   "./",
   "./index.html",
-  "./index.html?v=38",
-  "./styles.css?v=38",
-  "./app.js?v=38",
-  "./manifest.webmanifest?v=38",
+  "./index.html?v=39",
+  "./styles.css?v=39",
+  "./app.js?v=39",
+  "./manifest.webmanifest?v=39",
   "./assets/home-hero-lulu-cutout.png",
   "./assets/home-card-lower.png",
   "./assets/home-card-upper.png",

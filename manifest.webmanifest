@@ -1,7 +1,7 @@
 {
   "name": "训练记录",
   "short_name": "训练",
-  "start_url": "./index.html?v=38",
+  "start_url": "./index.html?v=39",
   "display": "standalone",
   "background_color": "#fbf7ef",
   "theme_color": "#fbf7ef",

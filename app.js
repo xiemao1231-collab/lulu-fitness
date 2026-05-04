@@ -54,6 +54,12 @@ const endWorkoutButton = document.querySelector("#endWorkoutButton");
 const workoutCarouselMeta = document.querySelector("#workoutCarouselMeta");
 const historyList = document.querySelector("#historyList");
 const importInput = document.querySelector("#importInput");
+const assistantOverlay = document.querySelector("#assistantOverlay");
+const assistantList = document.querySelector("#assistantList");
+const assistantCloseButton = document.querySelector("#assistantCloseButton");
+let assistantTapTimer = 0;
+let assistantLastTap = 0;
+let assistantEditingIndex = null;
 
 document.querySelectorAll("[data-start-split]").forEach((button) => {
   button.addEventListener("click", () => startWorkout(button.dataset.startSplit));
@@ -66,6 +72,15 @@ document.querySelector("#historyBackButton").addEventListener("click", showHome)
 document.querySelector("#endWorkoutButton").addEventListener("click", endWorkout);
 document.querySelector("#exportButton").addEventListener("click", exportEntries);
 importInput.addEventListener("change", importEntries);
+document.querySelectorAll(".workout-mascot").forEach((button) => {
+  button.addEventListener("click", handleMascotTap);
+  button.addEventListener("dblclick", (event) => event.preventDefault());
+});
+assistantCloseButton.addEventListener("click", closeAssistant);
+assistantOverlay.addEventListener("click", (event) => {
+  if (event.target.closest("[data-assistant-close]")) closeAssistant();
+});
+assistantList.addEventListener("click", handleAssistantAction);
 
 cardTrack.addEventListener("click", (event) => {
   const button = event.target.closest(".confirm-button");
@@ -104,6 +119,7 @@ function startWorkout(split) {
   endWorkoutButton.hidden = false;
   if (workoutCarouselMeta) workoutCarouselMeta.hidden = false;
   finishPanel.hidden = true;
+  closeAssistant();
   homeScreen.hidden = true;
   historyScreen.hidden = true;
   workoutScreen.hidden = false;
@@ -166,6 +182,11 @@ function confirmExercise(card) {
 
 function persistCurrentSession() {
   const existingIndex = entries.findIndex((entry) => entry.id === currentSession.id);
+  if (!currentSession.exercises.length) {
+    if (existingIndex >= 0) entries.splice(existingIndex, 1);
+    saveEntries();
+    return;
+  }
   if (existingIndex >= 0) entries[existingIndex] = currentSession;
   else entries.unshift(currentSession);
   saveEntries();
@@ -180,6 +201,7 @@ function updateProgress() {
   }
   updateProgressDots(done);
   updateWorkoutHint(done);
+  renderAssistantPanel();
 }
 
 function updateProgressDots(done) {
@@ -213,8 +235,7 @@ function targetText(name, defaults) {
 }
 
 function showFinish() {
-  const volume = entryVolume(currentSession);
-  finishText.textContent = `记录 ${currentSession.exercises.length} 项，力量总量 ${formatNumber(volume)} kg。`;
+  updateFinishText();
   cardTrack.hidden = true;
   endWorkoutButton.hidden = true;
   if (workoutCarouselMeta) workoutCarouselMeta.hidden = true;
@@ -230,6 +251,7 @@ function showHome() {
   endWorkoutButton.hidden = false;
   if (workoutCarouselMeta) workoutCarouselMeta.hidden = false;
   finishPanel.hidden = true;
+  closeAssistant();
   currentSession = null;
   remainingExercises = [];
   delete workoutScreen.dataset.split;
@@ -246,6 +268,183 @@ function endWorkout() {
   if (!currentSession) return;
   if (currentSession.exercises.length) persistCurrentSession();
   showFinish();
+}
+
+function handleMascotTap(event) {
+  event.preventDefault();
+  if (!currentSession || workoutScreen.hidden) return;
+
+  const now = Date.now();
+  if (now - assistantLastTap < 320) {
+    window.clearTimeout(assistantTapTimer);
+    assistantLastTap = 0;
+    if (!undoCompletedExercise()) openAssistant();
+    return;
+  }
+
+  assistantLastTap = now;
+  window.clearTimeout(assistantTapTimer);
+  assistantTapTimer = window.setTimeout(() => {
+    assistantLastTap = 0;
+    openAssistant();
+  }, 230);
+}
+
+function openAssistant() {
+  if (!assistantOverlay || !currentSession) return;
+  assistantEditingIndex = null;
+  assistantOverlay.hidden = false;
+  renderAssistantPanel();
+}
+
+function closeAssistant() {
+  if (!assistantOverlay) return;
+  assistantEditingIndex = null;
+  assistantOverlay.hidden = true;
+}
+
+function handleAssistantAction(event) {
+  const button = event.target.closest("[data-assistant-action]");
+  if (!button || !currentSession) return;
+  const item = button.closest(".assistant-item");
+  const index = item ? Number(item.dataset.index) : -1;
+  const action = button.dataset.assistantAction;
+
+  if (action === "edit") {
+    assistantEditingIndex = index;
+    renderAssistantPanel();
+    return;
+  }
+
+  if (action === "cancel-edit") {
+    assistantEditingIndex = null;
+    renderAssistantPanel();
+    return;
+  }
+
+  if (action === "save-edit") {
+    saveAssistantEdit(index);
+    return;
+  }
+
+  if (action === "undo") {
+    if (undoCompletedExercise(index)) closeAssistant();
+  }
+}
+
+function renderAssistantPanel() {
+  if (!assistantList || !currentSession || assistantOverlay.hidden) return;
+  const completed = currentSession.exercises;
+  if (!completed.length) {
+    assistantList.innerHTML = `<div class="assistant-empty">还没有完成动作</div>`;
+    return;
+  }
+
+  assistantList.innerHTML = completed.map((exercise, index) => renderAssistantItem(exercise, index)).join("");
+}
+
+function renderAssistantItem(exercise, index) {
+  const editing = assistantEditingIndex === index;
+  const editPanel = editing ? renderAssistantEdit(exercise) : "";
+  return `
+    <article class="assistant-item${editing ? " is-editing" : ""}" data-index="${index}">
+      <div class="assistant-item-main">
+        <div class="assistant-item-copy">
+          <h3>${escapeHtml(exercise.name)}</h3>
+          <p>${escapeHtml(formatExerciseLine(exercise))}</p>
+        </div>
+        <div class="assistant-actions">
+          <button class="assistant-action" type="button" data-assistant-action="edit">编辑</button>
+          <button class="assistant-action assistant-action-danger" type="button" data-assistant-action="undo">撤回</button>
+        </div>
+      </div>
+      ${editPanel}
+    </article>
+  `;
+}
+
+function renderAssistantEdit(exercise) {
+  const format = weightFormats[exercise.name] || { prefix: "", suffix: "kg", max: 160, step: 2.5 };
+  const weightLabel = format.prefix ? `重量 · ${format.prefix}` : "重量";
+  const setsField = isCardioName(exercise.name)
+    ? ""
+    : renderEditField("组数", "sets", exercise.sets, 1, 20, 1);
+
+  return `
+    <div class="assistant-edit">
+      <div class="assistant-edit-grid">
+        ${setsField}
+        ${renderEditField(isCardioName(exercise.name) ? "时间" : "次数", "reps", exercise.reps, 1, 200, 1)}
+        ${renderEditField(isCardioName(exercise.name) ? "坡度" : weightLabel, "weight", exercise.weight || 0, 0, format.max, format.step, format.suffix)}
+      </div>
+      <div class="assistant-edit-actions">
+        <button class="assistant-edit-button" type="button" data-assistant-action="cancel-edit">取消</button>
+        <button class="assistant-edit-button is-primary" type="button" data-assistant-action="save-edit">保存</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderEditField(label, field, value, min, max, step, suffix = "") {
+  return `
+    <label class="assistant-edit-field">
+      <span>${escapeHtml(label)}</span>
+      <span class="assistant-edit-input-wrap">
+        <input data-edit-field="${field}" type="number" min="${min}" max="${max}" step="${step}" value="${value}" />
+        ${suffix ? `<em>${escapeHtml(suffix)}</em>` : ""}
+      </span>
+    </label>
+  `;
+}
+
+function saveAssistantEdit(index) {
+  const exercise = currentSession?.exercises[index];
+  const item = assistantList.querySelector(`.assistant-item[data-index="${index}"]`);
+  if (!exercise || !item) return;
+  const format = weightFormats[exercise.name] || { max: 160, step: 2.5 };
+  const setsInput = item.querySelector('[data-edit-field="sets"]');
+  const repsInput = item.querySelector('[data-edit-field="reps"]');
+  const weightInput = item.querySelector('[data-edit-field="weight"]');
+
+  if (!isCardioName(exercise.name)) {
+    exercise.sets = normalizeEditNumber(setsInput?.value, exercise.sets, 1, 20, 1);
+  }
+  exercise.reps = normalizeEditNumber(repsInput?.value, exercise.reps, 1, 200, 1);
+  exercise.weight = normalizeEditNumber(weightInput?.value, exercise.weight || 0, 0, format.max, format.step);
+  assistantEditingIndex = null;
+  persistCurrentSession();
+  updateFinishText();
+  renderAssistantPanel();
+}
+
+function updateFinishText() {
+  if (!currentSession) return;
+  const volume = entryVolume(currentSession);
+  finishText.textContent = `记录 ${currentSession.exercises.length} 项，力量总量 ${formatNumber(volume)} kg。`;
+}
+
+function undoCompletedExercise(index = currentSession ? currentSession.exercises.length - 1 : -1) {
+  if (!currentSession || index < 0 || index >= currentSession.exercises.length) return false;
+  const [exercise] = currentSession.exercises.splice(index, 1);
+  restoreRemainingExercise(exercise.name);
+  persistCurrentSession();
+  cardTrack.hidden = false;
+  endWorkoutButton.hidden = false;
+  if (workoutCarouselMeta) workoutCarouselMeta.hidden = false;
+  finishPanel.hidden = true;
+  updateProgress();
+  renderCardLoop(exercise.name);
+  renderAssistantPanel();
+  return true;
+}
+
+function restoreRemainingExercise(name) {
+  if (!name || remainingExercises.includes(name)) return;
+  const order = templates[currentSession.split] || templates.lower;
+  const targetOrder = order.indexOf(name);
+  const insertAt = remainingExercises.findIndex((exerciseName) => order.indexOf(exerciseName) > targetOrder);
+  if (insertAt >= 0) remainingExercises.splice(insertAt, 0, name);
+  else remainingExercises.push(name);
 }
 
 function scheduleLoopCheck() {
@@ -423,6 +622,27 @@ function toDateKey(date) {
 
 function formatNumber(value) {
   return Math.round(value).toLocaleString("zh-CN");
+}
+
+function normalizeEditNumber(value, fallback, min, max, step) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  const clamped = Math.min(Math.max(number, min), max);
+  if (step >= 1) return Math.round(clamped);
+  return Number(clamped.toFixed(1));
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[char];
+  });
 }
 
 function numberRange(min, max, step) {
