@@ -97,6 +97,7 @@ cardTrack.addEventListener("touchmove", stopWheelTouch, { passive: true, capture
 document.addEventListener("gesturestart", preventZoom);
 document.addEventListener("gesturechange", preventZoom);
 document.addEventListener("touchmove", preventMultiTouchZoom, { passive: false });
+dismissAppSplash();
 
 function startWorkout(split) {
   const exercises = templates[split] || templates.lower;
@@ -727,6 +728,15 @@ function preventZoom(event) {
 
 function preventMultiTouchZoom(event) {
   if (event.touches && event.touches.length > 1) event.preventDefault();
+}
+
+function dismissAppSplash() {
+  const splash = document.querySelector("#appSplash");
+  if (!splash) return;
+  window.setTimeout(() => {
+    splash.classList.add("is-hidden");
+    window.setTimeout(() => splash.remove(), 420);
+  }, 260);
 }
 
 function cssEscape(value) {

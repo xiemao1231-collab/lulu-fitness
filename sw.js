@@ -1,11 +1,12 @@
-const cacheName = "gym-training-log-v41";
+const cacheName = "gym-training-log-v42";
 const files = [
   "./",
   "./index.html",
-  "./index.html?v=41",
-  "./styles.css?v=41",
-  "./app.js?v=41",
-  "./manifest.webmanifest?v=41",
+  "./index.html?v=42",
+  "./styles.css?v=42",
+  "./app.js?v=42",
+  "./manifest.webmanifest?v=42",
+  "./assets/startup-preview.webp",
   "./assets/home-hero-lulu-cutout.png",
   "./assets/home-card-lower.png",
   "./assets/home-card-upper.png",
@@ -57,14 +58,21 @@ self.addEventListener("fetch", (event) => {
 
   if (event.request.mode === "navigate" || event.request.destination === "document") {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.ok) {
-            caches.open(cacheName).then((cache) => cache.put(event.request, response.clone()));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html"))),
+      caches.match("./index.html").then((cachedIndex) => {
+        const fresh = fetch(event.request)
+          .then((response) => {
+            if (response && response.ok) {
+              caches.open(cacheName).then((cache) => {
+                cache.put("./index.html", response.clone());
+                cache.put(event.request, response.clone());
+              });
+            }
+            return response;
+          })
+          .catch(() => cachedIndex);
+
+        return cachedIndex || fresh;
+      }),
     );
     return;
   }
